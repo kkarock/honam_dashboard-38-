@@ -94,6 +94,17 @@
   .pc .b{background:var(--bad-soft)} .pc .b b{color:var(--bad)}
   .pc .w{background:var(--warn-soft)} .pc .w b{color:var(--warn)}
   .pc .r{background:var(--main-soft)} .pc .r b{color:var(--main)}
+  .box.step.wide{flex:0 0 160px}
+  .box.sj{background:linear-gradient(160deg,#f2f3ff,#f8f4ff);border:1.5px solid #e0e3ff} .box.sj .cap{color:#4a57d6}
+  .box.bl{background:linear-gradient(160deg,#eaf5ff,#f5faff);border:1.5px solid #cbe3fa} .box.bl .cap{color:#2f7cc4}
+  .box.mt{flex:0 0 190px;text-align:center;background:#fff;border:1.5px dashed #cfd3e6;padding:14px 10px}
+  .box.mt .cap{justify-content:center;flex-direction:column;gap:6px;color:#5d6580;margin-bottom:4px}
+  .box.mt .txt{font-size:.9rem;font-weight:600;line-height:1.5}
+  .opt{display:inline-block;font-size:.7rem;font-weight:700;color:var(--sub);background:#f0f1f6;border-radius:99px;padding:1px 9px;margin-top:6px}
+  .plus{flex:0 0 34px;text-align:center;font-size:1.7rem;font-weight:800;color:var(--main2);line-height:1}
+  .flowlbl{font-weight:800;font-size:.88rem;color:var(--main);margin:16px 0 -6px}
+  .flow.center{justify-content:center}
+  .box.out{flex:0 0 260px}
   /* 선택 */
   .check{display:flex;gap:12px;align-items:flex-start;padding:13px 16px;border:2px solid var(--line);border-radius:16px;margin-bottom:8px;cursor:pointer;background:#fff;transition:.15s}
   .check:hover{border-color:#c4cbff}
@@ -116,7 +127,7 @@
   .hidden{display:none!important}
   @media (max-width:640px){
     .flow{flex-direction:column;align-items:stretch}
-    .box.step,.box.bal,.box.out{flex:none}
+    .box.step,.box.bal,.box.out,.box.mt,.box.step.wide{flex:none}
     .arrow{flex:none;transform:rotate(90deg);height:34px}
     .arrow .lbl{transform:rotate(-90deg)}
     .cut{flex-direction:row;justify-content:center}
@@ -140,16 +151,16 @@
    ============================================================ */
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwoGRB5O6UQgcb5Ou4i3LzlW3IDX-X0f8-xVDJNehq31Sz4BfwYYfSYdwWESLZZpPgd/exec';
 
-const SECTION = '자율활동';
 const MAX_MB = 20;
 const OK_EXT = ['hwp','hwpx','doc','docx'];
 
-/* ---------- 항목 정의 ---------- */
-const ITEMS = {
+/* ================= 자율활동: 항목 ================= */
+const ITEMS_A = {
   watchdog:  {order:1,  label:'WatchDog', forms:[['watchdog.hwpx','WatchDog 기사·자기평가서']],
               desc:'기사와 자기평가서를 모두 올리세요.', ss:true},
   followup:  {order:2,  label:'WatchDog 후속탐구', forms:[['watchdog_followup.hwpx','WatchDog 후속탐구 자기평가서']],
-              desc:'후속탐구 자기평가서를 올리세요. 설문·인터뷰 기록 등 근거 자료(한글/워드)가 있으면 함께 올리세요.'},
+              desc:'후속탐구 자기평가서를 올리세요. 설문·인터뷰 기록 등 근거 자료(한글/워드)가 있으면 함께 올리세요.',
+              optTitle:'후속탐구 포함', optDesc:'WatchDog 후속탐구를 진행한 학생만 체크하세요. 체크하면 후속탐구 자기평가서를 올리는 칸이 나타납니다.'},
   balance:   {order:3,  label:'밸런스 주제탐구', forms:[['balance_inquiry.hwpx','밸런스 주제탐구 보고서']],
               desc:'보고서와 자기평가서를 하나의 파일로 올리세요.', ss:true},
   reading:   {order:4,  label:'독서활동', forms:[['reading.hwpx','독서활동 기록지']],
@@ -164,7 +175,7 @@ const ITEMS = {
               forms:[['school_event.hwpx','교내 행사 자기평가서 (체육대회·축제 등)'],
                      ['fieldtrip_kunsan.hwpx','군산대 학과 체험 보고서 (현장체험학습)'],
                      ['fieldtrip_ecology.hwpx','서천 국립생태원 견학 보고서 (현장체험학습)']],
-              desc:'행사마다 알맞은 양식을 한 장씩 작성해 올리세요.', ss:true, ssNote:'현장체험학습 보고서'},
+              desc:'행사마다 알맞은 양식을 한 장씩 작성해 올리세요.', ss:true},
   humanities:{order:9,  label:'인문학 아카데미', forms:[], optional:true, ss:true,
               notice:'인문학 아카데미 보고서는 강사 선생님이나 담임 선생님께 문의하세요.'},
   movie:     {order:10, label:'영화감상문(내 이름은)', forms:[['movie.hwpx','영화 ‘내 이름은’ 감상문']],
@@ -172,7 +183,7 @@ const ITEMS = {
   cur_class: {order:11, label:'탐구동기-수업 중 생긴 호기심', forms:[], note:true, optional:true,
               desc:'어느 수업에서 어떤 호기심이 생겼는지 아래에 적어 주세요. 관련 자료가 있으면 파일로 올려도 됩니다.'},
   cur_ext:   {order:12, label:'탐구동기-이전 탐구활동의 연장선', sub:'1학년 때, 타 교과, 동아리나 진로 시간에 진행한 탐구활동',
-              forms:[['subject_inquiry.hwpx','교과연계 주제탐구 보고서 (참고)']], note:true, optional:true, ss:true, ssNote:'교과연계 주제탐구 보고서',
+              forms:[['subject_inquiry.hwpx','교과연계 주제탐구 보고서 (참고)']], note:true, optional:true, ss:true,
               desc:'어떤 탐구활동을 이어간 것인지 아래에 적어 주세요. 그때의 보고서가 있으면 파일로 올리세요.'},
   cur_free:  {order:13, label:'탐구동기-출처 없이 생겨난 호기심', forms:[], note:true, optional:true,
               desc:'어떤 호기심이 생겼는지 아래에 적어 주세요.'},
@@ -180,22 +191,64 @@ const ITEMS = {
               desc:'탐구 동기를 아래에 적어 주세요.'}
 };
 const POOL = ['reading','role','debate','edu','event','humanities','movie'];
-
-/* ---------- 방법 정의 ---------- */
-const METHODS = {
-  m1:{label:'방법 1', title:'하나의 큰 주제, 두 개의 활동 (중심은 WatchDog) — 방법 1',
-      line:'일반 자율활동을 탐구 동기로 삼아 → WatchDog → 후속탐구', pick:POOL, min:1, pickTitle:'탐구 동기로 쓸 활동을 고르세요'},
-  m2:{label:'방법 2', title:'하나의 큰 주제, 두 개의 활동 (중심은 WatchDog) — 방법 2',
-      line:'호기심이나 이전 탐구를 탐구 동기로 삼아 → WatchDog → 후속탐구', pick:['cur_class','cur_ext','cur_free','cur_etc'], min:1, pickTitle:'나의 탐구 동기를 고르세요'},
-  m3:{label:'방법 3', title:'하나의 큰 주제, 두 개의 활동 (중심은 WatchDog) — 방법 3',
-      line:'일반 자율활동 / (단절) / WatchDog → 후속탐구', pick:POOL, min:1, pickTitle:'함께 기록할 일반 자율활동을 고르세요'},
-  m4:{label:'방법 4', title:'하나의 큰 주제, 두 개의 활동 (중심은 WatchDog) — 방법 4',
-      line:'밸런스 주제탐구 → (연결 또는 단절) WatchDog → 후속탐구', pick:null, fixed:['balance']},
-  m5:{label:'진행한 탐구활동이 없는 경우', title:'진행한 탐구활동이 없는 경우',
-      line:'일반 자율활동 중 2~3개를 골라 자기평가서 제출', pick:POOL, min:2, max:3, noWatchdog:true, pickTitle:'제출할 활동을 2~3개 고르세요'}
+const WD_TITLE = '하나의 큰 주제, 두 개의 활동 (중심은 WatchDog)';
+const METHODS_A = {
+  m1:{label:'1. 방법 1', title:WD_TITLE+' — 방법 1', line:'일반 자율활동을 탐구 동기로 삼아 → WatchDog → 후속탐구',
+      fixed:['watchdog'], optional:['followup'], pick:POOL, min:1, pickTitle:'탐구 동기로 쓸 활동을 고르세요'},
+  m2:{label:'1. 방법 2', title:WD_TITLE+' — 방법 2', line:'호기심이나 이전 탐구를 탐구 동기로 삼아 → WatchDog → 후속탐구',
+      fixed:['watchdog'], optional:['followup'], pick:['cur_class','cur_ext','cur_free','cur_etc'], min:1, pickTitle:'나의 탐구 동기를 고르세요'},
+  m3:{label:'1. 방법 3', title:WD_TITLE+' — 방법 3', line:'일반 자율활동 / (단절) / WatchDog → 후속탐구',
+      fixed:['watchdog'], optional:['followup'], pick:POOL, min:1, pickTitle:'함께 기록할 일반 자율활동을 고르세요'},
+  m4:{label:'1. 방법 4', title:WD_TITLE+' — 방법 4', line:'밸런스 주제탐구 → (연결 또는 단절) WatchDog → 후속탐구',
+      fixed:['watchdog','balance'], optional:['followup']},
+  m5:{label:'2. 진행한 탐구활동이 없는 경우', title:'진행한 탐구활동이 없는 경우', line:'일반 자율활동 중 2~3개를 골라 자기평가서 제출',
+      fixed:[], pick:POOL, min:2, max:3, pickTitle:'제출할 활동을 2~3개 고르세요'}
 };
 
-/* ---------- 안내 페이지 (손글씨 PDF 5쪽 → 1쪽씩) ---------- */
+/* ================= 진로활동: 항목 ================= */
+const ITEMS_C = {
+  subj:     {order:1, label:'교과연계 주제탐구', forms:[['subject_inquiry.hwpx','2학년 교과연계 주제탐구 보고서 안내 및 양식']],
+             desc:'보고서([양식1])와 자기평가서([양식2])를 하나의 한글 파일로 올리세요.', ss:true},
+  balance:  {order:2, label:'밸런스 주제탐구', forms:[['balance_inquiry.hwpx','2학년 밸런스 주제탐구 보고서 안내 및 양식']],
+             desc:'보고서([양식1])와 자기평가서([양식2])를 하나의 한글 파일로 올리세요.', ss:true},
+  subj_fu:  {order:3, label:'교과연계 후속탐구', forms:[['subject_followup.hwpx','교과연계 주제탐구 후속탐구 자기평가서']],
+             desc:'후속탐구 자기평가서를 올리세요. 후속탐구 결과물(보고서, 실험 기록, 설문지 등)은 같은 파일 뒤에 붙여 함께 올리세요.',
+             optTitle:'후속탐구 포함', optDesc:'교과연계 주제탐구의 후속탐구를 진행한 학생만 체크하세요. 체크하면 후속탐구 자기평가서를 올리는 칸이 나타납니다.'},
+  subj_fu1: {order:4, label:'교과연계 후속탐구 1', forms:[['subject_followup.hwpx','교과연계 주제탐구 후속탐구 자기평가서']],
+             desc:'첫 번째 후속탐구의 자기평가서를 올리세요. 후속탐구 결과물(보고서, 실험 기록, 설문지 등)은 같은 파일 뒤에 붙여 함께 올리세요.'},
+  subj_fu2: {order:5, label:'교과연계 후속탐구 2', forms:[['subject_followup.hwpx','교과연계 주제탐구 후속탐구 자기평가서']],
+             desc:'두 번째 후속탐구의 자기평가서를 올리세요. 후속탐구 1과 같은 양식을 사용합니다.',
+             optTitle:'후속탐구 2 포함', optDesc:'두 번째 후속탐구까지 진행한 학생만 체크하세요. 체크하면 후속탐구 2를 올리는 칸이 나타납니다.'},
+  senior:   {order:6, label:'선배와의 만남', forms:[['senior.hwpx','선배와의 만남 자기평가서']],
+             desc:'강연마다 자기평가서를 한 장씩 작성해 올리세요.',
+             optTitle:'선배와의 만남 포함', optDesc:'선배와의 만남 강연을 듣고 기록하고 싶은 학생만 체크하세요.'},
+  jobtalk:  {order:7, label:'직업인과의 만남', forms:[['jobtalk.hwpx','직업인과의 만남 자기평가서']],
+             desc:'강연마다 자기평가서를 한 장씩 작성해 올리세요.',
+             optTitle:'직업인과의 만남 포함', optDesc:'직업인과의 만남 강연을 듣고 기록하고 싶은 학생만 체크하세요.'},
+  quick:    {order:8, label:'진로 연계 속성 주제탐구', forms:[['career_quick.hwpx','진로 연계 속성 주제탐구 활동지']],
+             desc:'1단계부터 5단계까지 순서대로 작성해 올리세요.'}
+};
+const METHODS_C = {
+  c1:{label:'1. 융합적 사고가 보이는 2개의 활동', title:'하나의 주제, 융합적 사고가 보이는 2개의 활동 (중심은 교과연계 진로탐구)',
+      line:'교과연계 진로탐구 + 밸런스 주제탐구 (+ 후속탐구는 선택)', fixed:['subj','balance'], optional:['subj_fu']},
+  c2:{label:'2. 전공 적합성을 강조한 하나의 연속적 활동', title:'하나의 주제, 전공 적합성을 강조한 하나의 연속적 활동',
+      line:'교과연계 진로탐구 → 후속탐구 1 (필수) → 후속탐구 2 (선택)', fixed:['subj','subj_fu1'], optional:['subj_fu2']},
+  c3:{label:'3. 하나의 주제, 하나의 큰 활동', title:'하나의 주제, 하나의 큰 활동',
+      line:'교과연계 진로탐구 + 선배와의 만남·직업인과의 만남 (선택)', fixed:['subj'], optional:['senior','jobtalk']},
+  c4:{label:'4. 이가 없으면 잇몸으로', title:'이가 없으면 잇몸으로',
+      line:'밸런스 주제탐구 + 선배와의 만남·직업인과의 만남 (선택)', fixed:['balance'], optional:['senior','jobtalk'],
+      blocked:()=> ((S.status['자율활동']||{}).method==='m4') ? '자율활동에서 밸런스 주제탐구(방법 4)를 선택해 고를 수 없습니다.' : ''},
+  c5:{label:'5. 그동안 한 것이 아무것도 없다…', title:'그동안 한 것이 아무것도 없다',
+      line:'진로 연계 속성 주제탐구 활동지 작성', fixed:['quick']}
+};
+
+/* ================= 행동특성 ================= */
+const ITEMS_B = {
+  behavior: {order:1, label:'행동특성 및 종합의견', forms:[['behavior.hwpx','행동특성 및 종합의견 자기평가서']],
+             desc:'1년 동안의 학교생활을 돌아보며 작성해 올리세요. 모든 칸을 채우지 않아도 되며, 경험이 있는 칸을 구체적으로 쓰는 것이 더 중요합니다.'}
+};
+const METHODS_B = { only:{label:'행동특성 및 종합의견', title:'행동특성 및 종합의견', fixed:['behavior']} };
+
 const chips = a => `<div class="chips">${a.map(x=>`<span>${x}</span>`).join('')}</div>`;
 const POOL_LIST = chips(['독서 <small>(독서활동 기록지 제출)</small>','1인 1역할 또는 학생회','사제동행 주제토론',
   '각종 교내교육 <small>(성평등, 장애인식, 학교폭력, 마약예방, 심폐소생술, 흡연예방 교육 등)</small>',
@@ -205,7 +258,7 @@ const CUT = `<div class="cut"><div class="bar"></div><div class="pill">단절</d
 const WD = `<div class="box step wd"><div class="cap"><span class="ico">🔎</span>활동</div><div class="txt">WatchDog<br>프로그램 진행</div></div>
   ${ARROW()}<div class="box step fu"><div class="cap"><span class="ico">🌱</span>심화</div><div class="txt">WatchDog의<br>후속탐구 진행</div></div>`;
 const GRAD = `<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="ag" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="34" y2="0"><stop offset="0" stop-color="#8a7cf6"/><stop offset="1" stop-color="#5b6cf0"/></linearGradient></defs></svg>`;
-const GUIDE = [
+const GUIDE_A = [
   {h:'1. 하나의 큰 주제, 두 개의 활동, 중심은 WatchDog', s:'(1) 방법 1',
    body:`<div class="flow"><div class="box pool"><div class="cap"><span class="ico">💡</span>탐구 동기</div>${POOL_LIST}</div>${ARROW()}${WD}</div>
    <ul class="pc">
@@ -241,9 +294,65 @@ const GUIDE = [
 ];
 
 /* ---------- 상태 ---------- */
-const S = {sid:'', name:'', status:{}, gi:0, method:null, picks:[], followup:false, notes:{}, files:{}};
+
+
+/* ================= 진로활동 안내 (손글씨 PDF 5쪽) ================= */
+const STEP = (cls, ico, cap, txt, opt) => `<div class="box step ${cls}"><div class="cap"><span class="ico">${ico}</span>${cap}</div><div class="txt">${txt}</div>${opt?'<span class="opt">선택</span>':''}</div>`;
+const PLUS = `<div class="plus">+</div>`;
+const B_SUBJ = (cap='중심') => STEP('sj wide','📘',cap,'교과연계<br>진로탐구');
+const B_BAL  = (cap='활동') => STEP('bl wide','⚖️',cap,'밸런스<br>주제탐구');
+const B_FU   = (t='교과연계 진로탐구의<br>후속탐구', opt) => STEP('fu wide','🌱','심화',t,opt);
+const B_MEET = `<div class="box mt meet"><div class="cap"><span class="ico">🤝</span>선택 사항</div><div class="txt">선배와의 만남<br>직업인과의 만남</div><span class="opt">선택</span></div>`;
+const GUIDE_C = [
+  {h:'1. 하나의 주제, 융합적 사고가 보이는 2개의 활동', s:'(중심은 교과연계 진로탐구)',
+   body:`<div class="flowlbl">(1) 방법 1</div>
+   <div class="flow center">${B_SUBJ()}${ARROW()}${B_BAL()}${ARROW()}${B_FU()}</div>
+   <div class="flowlbl">(2) 방법 2</div>
+   <div class="flow center">${B_SUBJ()}${ARROW()}${B_FU()}${ARROW()}${B_BAL()}</div>
+   <ul class="pc">
+    <li class="g"><b>장점</b><span>인문-자연을 넘나드는 융합적 사고를 보여줄 수 있음. 하나의 큰 주제로 교과연계 진로탐구와 밸런스 주제탐구가 잘 연결되고 후속탐구로 깊이 있는 탐구의 연속성을 보여주면 상위권 대학이 좋아하는 그림을 완성할 수 있음.</span></li>
+    <li class="w"><b>주의할 점</b><span>중심인 교과연계 진로탐구의 깊이가 보이지 않으면 이도 저도 아닌, 애매한 결과물이 나올 수 있음.</span></li>
+    <li class="b"><b>단점</b><span>진로활동 특기사항의 분량이 줄어들어서 매우 깊이 파고드는 탐구력을 보여주기 힘들 수 있음.</span></li></ul>`},
+  {h:'2. 하나의 주제, 전공 적합성을 강조한 하나의 연속적 활동', s:'',
+   body:`<div class="flow center">${B_SUBJ()}${ARROW()}${B_FU('교과연계 진로탐구의<br>후속탐구 1')}${ARROW()}${B_FU('교과연계 진로탐구의<br>후속탐구 2')}</div>
+   <ul class="pc">
+    <li class="g"><b>장점</b><span>밸런스 주제탐구를 진행하지 않았거나, 했어도 내용이 부실할 때 활용 가능. 매우 깊이 있는 집요한 탐구력을 보여줄 수 있음.</span></li>
+    <li class="w"><b>주의할 점</b><span>첫 번째 탐구와 후속탐구가 하나의 큰 주제로 연결되지만, 각각 별도의 작은 주제의 정체성을 잘 유지해야 함.</span></li>
+    <li class="b"><b>단점</b><span>2~3개의 활동이 메인 활동과 후속 활동임이 구별되지 않으면 과한 전공적합 강조의 세특처럼 보일 수 있음.</span></li></ul>`},
+  {h:'3. 하나의 주제, 하나의 큰 활동', s:'',
+   body:`<div class="flow center">${B_SUBJ()}${PLUS}${B_MEET}</div>
+   <ul class="pc">
+    <li class="g"><b>장점</b><span>매우 디테일한 과정 중심의 세특을 완성할 수 있음. 덕후처럼 보일 수 있음.</span></li>
+    <li class="w"><b>주의할 점</b><span>내용이 디테일해질수록 이론적, 지식적 오류가 더 잘 드러날 수 있음.<br>선배와의 만남이나 직업인과의 만남에서의 강연, 문답 등의 경험은 교과연계 진로탐구의 과정 중 하나로 활용하면 학교생활에도 충실한 덕후의 모습을 보여줄 수 있음.</span></li>
+    <li class="b"><b>단점</b><span>학교생활에서의 다양성 결여.</span></li></ul>`},
+  {h:'4. 이가 없으면 잇몸으로', s:'',
+   body:`<div class="flow center">${B_BAL('활동')}${PLUS}${B_MEET}</div>
+   <ul class="pc">
+    <li class="g"><b>장점</b><span>교과연계 진로탐구를 진행하지 않고 밸런스 주제탐구만 한 경우 활용 가능.</span></li>
+    <li class="b"><b>단점</b><span>전공에 대한 깊이 부족. 희망 전공 진로 판단 모호.</span></li>
+    <li class="w"><b>주의할 점</b><span>선배와의 만남, 직업인과의 만남 활용 시 반드시 의미 있는 활동 내용이 있어야 함.<br><strong>자율활동에 밸런스 주제탐구를 활용한 경우 4번을 선택할 수 없음.</strong></span></li></ul>`},
+  {h:'5. 그동안 한 것이 아무것도 없다…', s:'',
+   body:`<div class="flow center"><div class="box out"><div class="cap"><span class="ico">📝</span>진로 연계 속성 주제탐구</div><div class="txt">간단한 자기평가서 작성으로 가능한<br>최소한의, 형식이라도 갖춘<br>세특 작성하기</div></div></div>`}
+];
+
+/* ================= 영역 ================= */
+const SECS = {
+  A:{key:'자율활동', title:'자율활동 특기사항', items:ITEMS_A, methods:METHODS_A, guide:()=>GUIDE_A, sub:'안내 → 방법 선택 → 활동 선택 → 자료 업로드',
+     mq:'자율활동을 어떤 방법으로 채울까요?'},
+  C:{key:'진로활동', title:'진로활동 특기사항', items:ITEMS_C, methods:METHODS_C, guide:()=>GUIDE_C, sub:'안내 → 방법 선택 → 자료 업로드',
+     mq:'진로활동을 어떤 방법으로 채울까요?'},
+  B:{key:'행동특성', title:'행동특성 및 종합의견', items:ITEMS_B, methods:METHODS_B, direct:true, sub:'자기평가서 1장을 내려받아 작성 후 업로드'}
+};
+
+/* ---------- 상태 ---------- */
+const S = {sid:'', name:'', status:{}, sec:'A', gi:0, method:null, picks:[], opts:[], notes:{}, files:{}};
+const SEC = () => SECS[S.sec];
+const IT = id => SEC().items[id];
+const MT = () => SEC().methods[S.method];
+const SST = () => S.status[SEC().key] || {};
 const $ = s => document.querySelector(s);
 const esc = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const short = l => l.replace(/^탐구동기-/,'탐구 동기: ');
 const DEMO = !SCRIPT_URL;
 if (DEMO) $('#demoBar').classList.remove('hidden');
 $('#gradHolder').innerHTML = GRAD;
@@ -256,15 +365,16 @@ async function apiStatus(){
   return r.json();
 }
 async function apiPost(body){
+  const section = SEC().key;
   if (DEMO) {
-    await new Promise(r=>setTimeout(r,250));
-    const db=demoStore(); db[S.sid]=db[S.sid]||{}; const sec=db[S.sid][SECTION]=db[S.sid][SECTION]||{files:{}};
+    await new Promise(r=>setTimeout(r,200));
+    const db=demoStore(); db[S.sid]=db[S.sid]||{}; const sec=db[S.sid][section]=db[S.sid][section]||{files:{}};
     if (body.action==='upload'){ if(body.replace) sec.files[body.itemLabel]=[]; (sec.files[body.itemLabel]=sec.files[body.itemLabel]||[]).push(body.fileName); }
     if (body.action==='finalize'){ const keep=body.items.map(x=>x.label); Object.keys(sec.files).forEach(k=>{ if(!keep.includes(k)) delete sec.files[k]; });
       Object.assign(sec,{method:body.method,methodLabel:body.methodLabel,items:body.items,followup:body.followup,updated:new Date().toLocaleString('ko-KR')}); }
     demoStore(db); return {ok:true};
   }
-  const r = await fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify(Object.assign({sid:S.sid,name:S.name,section:SECTION},body))});
+  const r = await fetch(SCRIPT_URL, {method:'POST', body:JSON.stringify(Object.assign({sid:S.sid,name:S.name,section},body))});
   return r.json();
 }
 
@@ -299,25 +409,25 @@ function viewLogin(){
 
 function viewHome(){
   $('#who').textContent=`${S.sid} ${S.name}`;
-  const st=S.status[SECTION];
-  const done = st && st.updated ? `<span class="badge b-ok">제출 완료 ${esc(st.updated)}</span>` : '';
+  const tile = k => { const s=SECS[k], st=S.status[s.key];
+    const done = st && st.updated ? `<span class="badge b-ok">제출 완료 ${esc(st.updated)}</span>` : '';
+    return `<button class="tile" data-sec="${k}"><span class="t">${esc(s.title)}</span>${done}<div class="muted">${esc(s.sub)}</div></button>`; };
   render(`<div class="card"><h2>어떤 영역을 작성할까요?</h2>
     <p class="muted">영역을 하나씩 끝낸 뒤 이 화면으로 돌아와 다음 영역을 이어서 하세요.</p>
-    <div class="tiles" style="margin-top:12px">
-      <button class="tile" id="t1"><span class="t">자율활동 특기사항</span>${done}<div class="muted">안내 → 방법 선택 → 활동 선택 → 자료 업로드</div></button>
-      <button class="tile off" disabled><span class="t">진로활동 특기사항</span><span class="badge b-gray">준비 중</span></button>
-      <button class="tile off" disabled><span class="t">행동특성 및 종합의견</span><span class="badge b-gray">준비 중</span></button>
-    </div>
+    <div class="tiles" style="margin-top:12px">${['A','C','B'].map(tile).join('')}</div>
     <div class="row"><button class="btn ghost small" id="out">다른 학생으로 시작</button></div></div>`);
-  $('#t1').onclick=()=>{ S.gi=0; viewGuide(); };
+  document.querySelectorAll('[data-sec]').forEach(b=>b.onclick=()=>{
+    S.sec=b.dataset.sec; S.method=null; S.picks=[]; S.opts=[]; S.notes={}; S.files={};
+    if(SEC().direct){ S.method='only'; restorePrev(); viewUpload(); } else { S.gi=0; viewGuide(); }
+  });
   $('#out').onclick=viewLogin;
 }
 
 function viewGuide(){
-  const g=GUIDE[S.gi], last=S.gi===GUIDE.length-1, st=S.status[SECTION];
+  const G=SEC().guide(), g=G[S.gi], last=S.gi===G.length-1, st=SST();
   render(`<div class="card">
-    <div class="row" style="margin-top:0"><span><span class="pager">자율활동 안내 ${S.gi+1} / ${GUIDE.length}</span><span class="dots">${GUIDE.map((_,i)=>`<i class="${i===S.gi?'on':''}"></i>`).join('')}</span></span>
-      ${st&&st.updated?'<button class="btn ghost small" id="skip">안내 건너뛰기</button>':''}</div>
+    <div class="row" style="margin-top:0"><span><span class="pager">${esc(SEC().key)} 안내 ${S.gi+1} / ${G.length}</span><span class="dots">${G.map((_,i)=>`<i class="${i===S.gi?'on':''}"></i>`).join('')}</span></span>
+      ${st.updated?'<button class="btn ghost small" id="skip">안내 건너뛰기</button>':''}</div>
     <h2 style="margin-top:8px">${g.h}</h2>${g.s?`<h3>${g.s}</h3>`:''}
     ${g.body}
     <div class="row"><button class="btn ghost" id="pv">${S.gi===0?'처음 화면':'이전'}</button>
@@ -328,44 +438,46 @@ function viewGuide(){
 }
 
 function viewMethod(){
-  const prev=(S.status[SECTION]||{}).method;
-  render(`<div class="card"><h2>자율활동을 어떤 방법으로 채울까요?</h2>
+  const prev=SST().method, M=SEC().methods;
+  if(S.method && M[S.method].blocked && M[S.method].blocked()) S.method=null;
+  render(`<div class="card"><h2>${esc(SEC().mq)}</h2>
     <p class="muted">앞의 안내를 참고하여 하나를 고르세요.</p>
     <div class="tiles" style="margin-top:12px">
-      ${Object.entries(METHODS).map(([k,m])=>`<button class="tile ${S.method===k?'sel':''}" data-m="${k}">
-        <span class="t">${k==='m5'?'2. ':'1. '}${esc(m.label)}</span>${prev===k?'<span class="badge b-ok">지난번 선택</span>':''}
-        <div class="muted">${esc(m.line)}</div></button>`).join('')}
+      ${Object.entries(M).map(([k,m])=>{ const why=m.blocked?m.blocked():'';
+        return `<button class="tile ${S.method===k?'sel':''} ${why?'off':''}" data-m="${k}" ${why?'disabled':''}>
+        <span class="t">${esc(m.label)}</span>${prev===k?'<span class="badge b-ok">지난번 선택</span>':''}${why?'<span class="badge b-gray">선택 불가</span>':''}
+        <div class="muted">${esc(why||m.line)}</div></button>`; }).join('')}
     </div>
     <div class="row"><button class="btn ghost" id="pv">안내 다시 보기</button><button class="btn" id="nx" ${S.method?'':'disabled'}>다음</button></div></div>`);
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
     if(S.method!==b.dataset.m){ S.method=b.dataset.m; restorePrev(); }
     viewMethod();
   });
-  $('#pv').onclick=()=>{ S.gi=GUIDE.length-1; viewGuide(); };
-  $('#nx').onclick=()=>{ METHODS[S.method].pick ? viewPick() : viewUpload(); };
+  $('#pv').onclick=()=>{ S.gi=SEC().guide().length-1; viewGuide(); };
+  $('#nx').onclick=()=>{ MT().pick ? viewPick() : viewUpload(); };
 }
 
 /* 같은 방법을 다시 고르면 지난번 선택을 불러옴 */
 function restorePrev(){
-  const st=S.status[SECTION]||{}, m=METHODS[S.method];
-  S.picks=[]; S.notes={}; S.files={}; S.followup=false;
+  const st=SST(), m=MT();
+  S.picks=[]; S.opts=[]; S.notes={}; S.files={};
   if(st.method===S.method && st.items){
-    const pool=m.pick||[];
-    st.items.forEach(it=>{ const id=Object.keys(ITEMS).find(k=>ITEMS[k].label===it.label);
-      if(id && pool.includes(id)) S.picks.push(id); if(id && it.note) S.notes[id]=it.note; });
-    S.followup=!!st.followup;
+    st.items.forEach(it=>{ const id=Object.keys(SEC().items).find(k=>SEC().items[k].label===it.label); if(!id) return;
+      if((m.pick||[]).includes(id)) S.picks.push(id);
+      if((m.optional||[]).includes(id)) S.opts.push(id);
+      if(it.note) S.notes[id]=it.note; });
   }
 }
 
 function viewPick(){
-  const m=METHODS[S.method];
-  const fixedHtml = m.noWatchdog ? '' : `<p class="muted" style="margin-top:14px">아래 활동은 이 방법에 자동으로 포함됩니다.</p>
-    <div class="check fixed"><input type="checkbox" checked disabled><div><b>WatchDog 프로그램</b> <span class="badge b-ok">필수</span>
-    <div class="muted">WatchDog 후속탐구 포함 여부는 다음 화면에서 체크합니다.</div></div></div>`;
+  const m=MT();
+  const fixedHtml = !m.fixed.length ? '' : `<p class="muted" style="margin-top:14px">아래 활동은 이 방법에 자동으로 포함됩니다.</p>
+    ${m.fixed.map(id=>`<div class="check fixed"><input type="checkbox" checked disabled><div><b>${esc(IT(id).label)}</b> <span class="badge b-ok">필수</span></div></div>`).join('')}
+    ${(m.optional||[]).length?`<p class="muted">${m.optional.map(id=>esc(IT(id).label)).join(', ')} 포함 여부는 다음 화면에서 체크합니다.</p>`:''}`;
   const rule = m.max ? `${m.min}~${m.max}개를 고르세요.` : `하나 이상 고르세요. (여러 개 선택 가능)`;
   render(`<div class="card"><span class="pager">${esc(m.title)}</span>
-    <h2 style="margin-top:6px">${esc(m.pickTitle)}</h2><p class="muted">${rule}</p>
-    ${m.pick.map(id=>{const it=ITEMS[id]; const on=S.picks.includes(id);
+    <h2 style="margin-top:10px">${esc(m.pickTitle)}</h2><p class="muted">${rule}</p>
+    ${m.pick.map(id=>{const it=IT(id); const on=S.picks.includes(id);
       return `<label class="check ${on?'sel':''}"><input type="checkbox" data-id="${id}" ${on?'checked':''}>
         <div><b>${esc(it.label.replace(/^탐구동기-/,''))}</b>${it.sub?`<div class="muted">${esc(it.sub)}</div>`:''}</div></label>`;}).join('')}
     ${fixedHtml}
@@ -386,21 +498,18 @@ function viewPick(){
 
 /* 현재 선택으로 올려야 할 항목 목록 */
 function currentItems(){
-  const m=METHODS[S.method]; let ids=[];
-  if(!m.noWatchdog) ids.push('watchdog');
-  if(!m.noWatchdog && S.followup) ids.push('followup');
-  if(m.fixed) ids=ids.concat(m.fixed);
-  if(m.pick) ids=ids.concat(m.pick.filter(x=>S.picks.includes(x)));
-  return ids.sort((a,b)=>ITEMS[a].order-ITEMS[b].order);
+  const m=MT();
+  const ids=[...m.fixed, ...(m.optional||[]).filter(x=>S.opts.includes(x)), ...(m.pick||[]).filter(x=>S.picks.includes(x))];
+  return ids.sort((a,b)=>IT(a).order-IT(b).order);
 }
 
-function prevFiles(id){ const f=((S.status[SECTION]||{}).files||{})[ITEMS[id].label]; return f&&f.length?f:null; }
+function prevFiles(id){ const f=(SST().files||{})[IT(id).label]; return f&&f.length?f:null; }
 
 function itemCard(id){
-  const it=ITEMS[id], prev=prevFiles(id), mine=S.files[id]||[];
+  const it=IT(id), prev=prevFiles(id), mine=S.files[id]||[];
   const required = !it.optional;
   return `<div class="item" id="it-${id}">
-    <h3>${esc(it.label.replace(/^탐구동기-/,'탐구 동기: '))}
+    <h3>${esc(short(it.label))}
       ${required?'<span class="badge b-main">파일 필수</span>':'<span class="badge b-gray">파일 선택</span>'}
       ${it.ss?'<span class="badge b-warn">슈퍼스쿨 제출분 재업로드</span>':''}</h3>
     ${it.sub?`<div class="muted">${esc(it.sub)}</div>`:''}
@@ -416,20 +525,25 @@ function itemCard(id){
 }
 
 function viewUpload(){
-  const m=METHODS[S.method], ids=currentItems();
-  const fu = m.noWatchdog ? '' : `<label class="check ${S.followup?'sel':''}" style="margin:12px 0"><input type="checkbox" id="fu" ${S.followup?'checked':''}>
-      <div><b>후속탐구 포함</b><div class="muted">WatchDog 후속탐구를 진행한 학생만 체크하세요. 체크하면 후속탐구 자기평가서를 올리는 칸이 나타납니다.</div></div></label>`;
-  render(`<div class="card"><span class="pager">${esc(m.title)}</span>
-    <h2 style="margin-top:6px">양식을 내려받아 작성한 뒤 올리세요</h2>
+  const m=MT(), ids=currentItems();
+  const opts=(m.optional||[]).map(id=>{ const it=IT(id), on=S.opts.includes(id);
+    return `<label class="check ${on?'sel':''}" style="margin:10px 0 0"><input type="checkbox" data-opt="${id}" ${on?'checked':''}>
+      <div><b>${esc(it.optTitle||it.label+' 포함')}</b>${it.optDesc?`<div class="muted">${esc(it.optDesc)}</div>`:''}</div></label>`; }).join('');
+  const ssBanner = ids.some(id=>IT(id).ss) ? `<div class="notice n-warn">WatchDog, 교과연계 주제탐구, 밸런스 주제탐구, 독서활동, 영화감상문, 현장체험학습 보고서, 인문학 아카데미 등의 보고서를 <b>이미 슈퍼스쿨에 제출한 학생</b>은 슈퍼스쿨에서 해당 보고서를 내려받아 이 페이지에 다시 올리세요.</div>` : '';
+  render(`<div class="card"><span class="pager">${esc(SEC().direct?SEC().title:m.title)}</span>
+    <h2 style="margin-top:10px">양식을 내려받아 작성한 뒤 올리세요</h2>
     <p class="muted">한글(hwp, hwpx) 또는 워드(doc, docx) 파일만 올릴 수 있습니다. 한 항목에 여러 파일을 함께 올릴 수 있습니다. (파일당 ${MAX_MB}MB 이하)</p>
-    <div class="notice n-warn">WatchDog, 교과연계 주제탐구, 밸런스 주제탐구, 독서활동, 영화감상문, 현장체험학습 보고서, 인문학 아카데미 등의 보고서를 <b>이미 슈퍼스쿨에 제출한 학생</b>은 슈퍼스쿨에서 해당 보고서를 내려받아 이 페이지에 다시 올리세요.</div>
-    ${fu}</div>
+    ${ssBanner}${opts}</div>
     ${ids.map(itemCard).join('')}
     <div class="card"><div class="err" id="err"></div>
       <div id="prog" class="hidden"><div class="muted" id="progText"></div><div class="progress"><div id="bar"></div></div></div>
       <div class="row"><button class="btn ghost" id="pv">이전</button><button class="btn" id="sub">제출하기</button></div></div>`);
 
-  const fuEl=$('#fu'); if(fuEl) fuEl.onchange=()=>{ S.followup=fuEl.checked; if(!S.followup) delete S.files.followup; viewUpload(); };
+  document.querySelectorAll('[data-opt]').forEach(c=>c.onchange=()=>{
+    const id=c.dataset.opt;
+    if(c.checked){ if(!S.opts.includes(id)) S.opts.push(id); } else { S.opts=S.opts.filter(x=>x!==id); delete S.files[id]; }
+    viewUpload();
+  });
   document.querySelectorAll('[data-note]').forEach(t=>t.oninput=()=>{ S.notes[t.dataset.note]=t.value; });
   document.querySelectorAll('[data-file]').forEach(inp=>inp.onchange=()=>{
     const id=inp.dataset.file, ok=[], bad=[];
@@ -440,25 +554,25 @@ function viewUpload(){
     $('#nf-'+id).innerHTML=(ok.length?'올릴 파일: '+ok.map(f=>esc(f.name)).join(', '):'')+(bad.length?`<div style="color:var(--bad)">올릴 수 없는 파일: ${bad.map(esc).join(', ')}</div>`:'');
     $('#it-'+id).classList.remove('missing');
   });
-  $('#pv').onclick=()=>{ m.pick ? viewPick() : viewMethod(); };
+  $('#pv').onclick=()=>{ if(SEC().direct) viewHome(); else if(m.pick) viewPick(); else viewMethod(); };
   $('#sub').onclick=submit;
 }
 
 async function submit(){
   const ids=currentItems(), miss=[];
   ids.forEach(id=>{
-    const it=ITEMS[id], has=(S.files[id]||[]).length || prevFiles(id);
+    const it=IT(id), has=(S.files[id]||[]).length || prevFiles(id);
     const noteOk=!it.note || (S.notes[id]||'').trim().length>=10;
-    if((!it.optional && !has) || !noteOk){ miss.push(it.label.replace(/^탐구동기-/,'탐구 동기: ')); $('#it-'+id).classList.add('missing'); }
+    if((!it.optional && !has) || !noteOk){ miss.push(short(it.label)); $('#it-'+id).classList.add('missing'); }
   });
   if(miss.length){ $('#err').innerHTML='아직 채우지 않은 항목이 있습니다: <b>'+miss.map(esc).join(', ')+'</b>'+
-      (ids.some(id=>ITEMS[id].note)?'<br>탐구 동기 설명은 10자 이상 적어 주세요.':''); return; }
+      (ids.some(id=>IT(id).note)?'<br>탐구 동기 설명은 10자 이상 적어 주세요.':''); return; }
 
   const jobs=[]; ids.forEach(id=>(S.files[id]||[]).forEach((f,i)=>jobs.push({id,f,replace:i===0})));
   $('#sub').disabled=true; $('#pv').disabled=true; $('#err').textContent=''; $('#prog').classList.remove('hidden');
   try{
     for(let k=0;k<jobs.length;k++){
-      const {id,f,replace}=jobs[k], it=ITEMS[id];
+      const {id,f,replace}=jobs[k], it=IT(id);
       $('#progText').textContent=`파일 올리는 중 (${k+1}/${jobs.length}): ${f.name}`;
       const data=await toB64(f);
       const r=await apiPost({action:'upload', itemOrder:it.order, itemLabel:it.label, replace, fileName:f.name, mimeType:f.type, data});
@@ -466,9 +580,9 @@ async function submit(){
       $('#bar').style.width=((k+1)/(jobs.length+1)*100)+'%';
     }
     $('#progText').textContent='선택 내용 저장 중…';
-    const m=METHODS[S.method];
-    const r=await apiPost({action:'finalize', method:S.method, methodLabel:m.title, followup:!m.noWatchdog&&S.followup,
-      items:ids.map(id=>({id, label:ITEMS[id].label, order:ITEMS[id].order, note:ITEMS[id].note?(S.notes[id]||'').trim():''}))});
+    const m=MT();
+    const r=await apiPost({action:'finalize', method:S.method, methodLabel:m.title, followup:ids.some(id=>/followup|_fu/.test(id)),
+      items:ids.map(id=>({id, label:IT(id).label, order:IT(id).order, note:IT(id).note?(S.notes[id]||'').trim():''}))});
     if(!r.ok) throw new Error(r.error||'저장 실패');
     $('#bar').style.width='100%';
     const st=await apiStatus(); if(st.ok) S.status=st.sections||{};
@@ -482,11 +596,12 @@ async function submit(){
 function toB64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(',')[1]); r.onerror=()=>rej(new Error('파일을 읽지 못했습니다: '+file.name)); r.readAsDataURL(file); }); }
 
 function viewDone(){
-  const st=S.status[SECTION]||{}, files=st.files||{};
-  render(`<div class="card"><h2>자율활동 제출이 완료되었습니다 ✔</h2>
-    <p><b>${esc(METHODS[S.method].title)}</b>${st.followup?' · 후속탐구 포함':''}</p>
-    <ul>${currentItems().map(id=>{const l=ITEMS[id].label, f=files[l];
-      return `<li>${esc(l.replace(/^탐구동기-/,'탐구 동기: '))} — ${f?f.map(esc).join(', '):'<span class="muted">파일 없음</span>'}</li>`;}).join('')}</ul>
+  const st=SST(), files=st.files||{}, m=MT();
+  const optNames=(m.optional||[]).filter(x=>S.opts.includes(x)).map(x=>IT(x).label);
+  render(`<div class="card"><h2>${esc(SEC().key)} 제출이 완료되었습니다 ✔</h2>
+    <p><b>${esc(SEC().direct?SEC().title:m.title)}</b>${optNames.length?' · '+optNames.map(esc).join(', ')+' 포함':''}</p>
+    <ul>${currentItems().map(id=>{const l=IT(id).label, f=files[l];
+      return `<li>${esc(short(l))} — ${f?f.map(esc).join(', '):'<span class="muted">파일 없음</span>'}</li>`;}).join('')}</ul>
     <div class="notice n-main">추가적으로 제출할 자료가 있다면 담임 선생님과 상의하세요.</div>
     <div class="row"><span></span><button class="btn" id="home">영역 선택으로 돌아가기</button></div></div>`);
   $('#home').onclick=viewHome;
