@@ -15,7 +15,9 @@
   body{margin:0;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:var(--ink);
     background:linear-gradient(180deg,#f1efff 0,#f8f7fc 320px,#f8f7fc 100%);line-height:1.65;word-break:keep-all;min-height:100vh}
   header{background:linear-gradient(120deg,#5b6cf0,#8a7cf6 60%,#b48cf2);color:#fff;padding:22px 20px 26px;border-radius:0 0 26px 26px;box-shadow:0 8px 24px rgba(91,108,240,.25)}
-  header h1{margin:0;font-size:1.35rem;letter-spacing:-.02em;max-width:820px;margin:0 auto}
+  header h1{font-size:1.9rem;letter-spacing:-.03em;max-width:820px;margin:0 auto;cursor:pointer;display:block}
+  header h1:hover{opacity:.9}
+  @media (max-width:640px){ header h1{font-size:1.5rem} }
   header .who{font-size:.9rem;opacity:.92;margin:4px auto 0;max-width:820px}
   main{max-width:880px;margin:0 auto;padding:22px 16px 80px}
   .card{background:var(--card);border:1px solid #eeeef6;border-radius:22px;padding:22px;margin-bottom:16px;box-shadow:var(--shadow)}
@@ -105,6 +107,20 @@
   .flowlbl{font-weight:800;font-size:.88rem;color:var(--main);margin:16px 0 -6px}
   .flow.center{justify-content:center}
   .box.out{flex:0 0 260px}
+  .reco{display:inline-flex;align-items:center;gap:4px;font-size:.8rem;font-weight:800;color:#8a4b00;background:linear-gradient(120deg,#ffe58a,#ffc56b);padding:4px 12px;border-radius:999px;margin-left:8px;vertical-align:middle;box-shadow:0 2px 8px rgba(255,170,40,.35);animation:glow 2.4s ease-in-out infinite}
+  @keyframes glow{0%,100%{box-shadow:0 2px 8px rgba(255,170,40,.35)}50%{box-shadow:0 2px 16px rgba(255,170,40,.65)}}
+  .chips span.hot{font-weight:800;color:#c2410c;background:#fff3ea;border:1.5px solid #fdba8c;font-size:.93rem;padding:5px 12px}
+  .kang{display:inline-block;font-size:.7rem;font-weight:800;color:#fff;background:linear-gradient(120deg,#f97316,#ef4444);border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+  .check.hot b{color:#c2410c;font-size:1.05rem}
+  .chips span.hot .kang{background:linear-gradient(120deg,#f97316,#ef4444);color:#fff;border:0;padding:1px 8px;font-size:.7rem;font-weight:800;border-radius:999px}
+  .intro{min-height:calc(100vh - 190px);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:60px 28px}
+  .intro .big{font-size:1.65rem;font-weight:800;line-height:1.6;letter-spacing:-.02em;max-width:680px}
+  .intro .big em{font-style:normal;background:linear-gradient(transparent 60%,#ffe58a 60%)}
+  .intro .mid{font-size:1.15rem;line-height:1.8;color:var(--ink);max-width:640px;margin-top:22px}
+  .intro .foot{margin-top:56px;font-size:.98rem;color:var(--sub);max-width:640px;line-height:1.7;background:var(--main-soft);border-radius:16px;padding:14px 18px}
+  .intro .btn{margin-top:36px;font-size:1.1rem;padding:14px 34px}
+  @media (max-width:640px){ .intro .big{font-size:1.3rem} .intro .mid{font-size:1rem} }
+  .tile.extra{border-style:dashed;background:#fbfaff}
   /* 선택 */
   .check{display:flex;gap:12px;align-items:flex-start;padding:13px 16px;border:2px solid var(--line);border-radius:16px;margin-bottom:8px;cursor:pointer;background:#fff;transition:.15s}
   .check:hover{border-color:#c4cbff}
@@ -138,7 +154,7 @@
 <body>
 <div id="demoBar" class="demo hidden">미리보기 모드입니다. 서버 주소(SCRIPT_URL)가 설정되지 않아 파일이 실제로 저장되지 않습니다.</div>
 <header>
-  <h1>호남고 2학년 창체활동 도우미</h1>
+  <h1 id="title" title="처음 선택 화면으로">호남고 2학년 창체활동 도우미</h1>
   <div class="who" id="who"></div>
 </header>
 <main id="app"></main>
@@ -165,7 +181,7 @@ const ITEMS_A = {
               desc:'보고서와 자기평가서를 하나의 파일로 올리세요.', ss:true},
   reading:   {order:4,  label:'독서활동', forms:[['reading.hwpx','독서활동 기록지']],
               desc:'책마다 독서활동 기록지를 작성해 올리세요.', ss:true},
-  role:      {order:5,  label:'1인1역할·학생회', forms:[['role.hwpx','1인 1역할·학생회 자기평가서']],
+  role:      {order:5,  hot:true, label:'1인1역할·학생회', forms:[['role.hwpx','1인 1역할·학생회 자기평가서']],
               desc:'자기평가서를 올리세요. 회의록·기획안 등 활동 기록(한글/워드)이 있으면 함께 올리세요.'},
   debate:    {order:6,  label:'사제동행 주제토론', forms:[['debate.hwpx','사제동행 주제토론 자기평가서']],
               desc:'자기평가서를 올리세요. 토론 개요서 등 준비 자료(한글/워드)가 있으면 함께 올리세요.'},
@@ -193,11 +209,11 @@ const ITEMS_A = {
 const POOL = ['reading','role','debate','edu','event','humanities','movie'];
 const WD_TITLE = '하나의 큰 주제, 두 개의 활동 (중심은 WatchDog)';
 const METHODS_A = {
-  m1:{label:'1. 방법 1', title:WD_TITLE+' — 방법 1', line:'일반 자율활동을 탐구 동기로 삼아 → WatchDog → 후속탐구',
+  m1:{reco:true, label:'1. 방법 1', title:WD_TITLE+' — 방법 1', line:'일반 자율활동을 탐구 동기로 삼아 → WatchDog → 후속탐구',
       fixed:['watchdog'], optional:['followup'], pick:POOL, min:1, pickTitle:'탐구 동기로 쓸 활동을 고르세요'},
   m2:{label:'1. 방법 2', title:WD_TITLE+' — 방법 2', line:'호기심이나 이전 탐구를 탐구 동기로 삼아 → WatchDog → 후속탐구',
       fixed:['watchdog'], optional:['followup'], pick:['cur_class','cur_ext','cur_free','cur_etc'], min:1, pickTitle:'나의 탐구 동기를 고르세요'},
-  m3:{label:'1. 방법 3', title:WD_TITLE+' — 방법 3', line:'일반 자율활동 / (단절) / WatchDog → 후속탐구',
+  m3:{reco:true, label:'1. 방법 3', title:WD_TITLE+' — 방법 3', line:'일반 자율활동 / (단절) / WatchDog → 후속탐구',
       fixed:['watchdog'], optional:['followup'], pick:POOL, min:1, pickTitle:'함께 기록할 일반 자율활동을 고르세요'},
   m4:{label:'1. 방법 4', title:WD_TITLE+' — 방법 4', line:'밸런스 주제탐구 → (연결 또는 단절) WatchDog → 후속탐구',
       fixed:['watchdog','balance'], optional:['followup']},
@@ -249,8 +265,8 @@ const ITEMS_B = {
 };
 const METHODS_B = { only:{label:'행동특성 및 종합의견', title:'행동특성 및 종합의견', fixed:['behavior']} };
 
-const chips = a => `<div class="chips">${a.map(x=>`<span>${x}</span>`).join('')}</div>`;
-const POOL_LIST = chips(['독서 <small>(독서활동 기록지 제출)</small>','1인 1역할 또는 학생회','사제동행 주제토론',
+const chips = a => `<div class="chips">${a.map(x=>x.startsWith('<HOT>')?`<span class="hot">${x.slice(5)}</span>`:`<span>${x}</span>`).join('')}</div>`;
+const POOL_LIST = chips(['독서 <small>(독서활동 기록지 제출)</small>','<HOT>1인 1역할 또는 학생회<span class="kang">강추</span>','사제동행 주제토론',
   '각종 교내교육 <small>(성평등, 장애인식, 학교폭력, 마약예방, 심폐소생술, 흡연예방 교육 등)</small>',
   '교내행사 <small>(현장체험학습, 체육대회, 축제 등)</small>','인문학 아카데미','영화감상문 <small>(내 이름은)</small>']);
 const ARROW = (lbl='') => `<div class="arrow"><svg viewBox="0 0 34 22"><path d="M4 11 H28"/><path d="M22 5 L29 11 L22 17"/></svg>${lbl?`<div class="lbl">${lbl}</div>`:''}</div>`;
@@ -259,7 +275,7 @@ const WD = `<div class="box step wd"><div class="cap"><span class="ico">🔎</sp
   ${ARROW()}<div class="box step fu"><div class="cap"><span class="ico">🌱</span>심화</div><div class="txt">WatchDog의<br>후속탐구 진행</div></div>`;
 const GRAD = `<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="ag" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="34" y2="0"><stop offset="0" stop-color="#8a7cf6"/><stop offset="1" stop-color="#5b6cf0"/></linearGradient></defs></svg>`;
 const GUIDE_A = [
-  {h:'1. 하나의 큰 주제, 두 개의 활동, 중심은 WatchDog', s:'(1) 방법 1',
+  {h:'1. 하나의 큰 주제, 두 개의 활동, 중심은 WatchDog', s:'(1) 방법 1', reco:true,
    body:`<div class="flow"><div class="box pool"><div class="cap"><span class="ico">💡</span>탐구 동기</div>${POOL_LIST}</div>${ARROW()}${WD}</div>
    <ul class="pc">
     <li class="g"><b>장점</b><span>보편적으로 자율활동에 들어가는 활동이 탐구 동기로 쓰임으로써 탐구 일변도가 아닌, 서울 상위권 대학이 원하는 느낌을 줄 수 있음.</span></li>
@@ -272,7 +288,7 @@ const GUIDE_A = [
     <li class="g"><b>장점</b><span>동기 부분이 차지하는 비중이 적어 자율활동의 대부분을 탐구활동으로 채울 수 있음. 디테일한 탐구 과정을 보여줄 수 있어 서울 중위권 대학(국숭세단 이하) 및 지거국 대학이 좋아하는 느낌을 줄 수 있음.</span></li>
     <li class="b"><b>단점</b><span>탐구의 과정과 깊이가 의미 있지 않으면 지나치게 전공적합만 강조하는 자율활동처럼 보일 수 있음.</span></li>
     <li class="w"><b>주의할 점</b><span>WatchDog이 대부분을 차지하므로 후속탐구 추가 진행 필수.</span></li></ul>`},
-  {h:'1. 하나의 큰 주제, 두 개의 활동, 중심은 WatchDog', s:'(3) 방법 3',
+  {h:'1. 하나의 큰 주제, 두 개의 활동, 중심은 WatchDog', s:'(3) 방법 3', reco:true,
    body:`<div class="flow"><div class="box gen"><div class="cap"><span class="ico">🏫</span>일반 자율활동</div>${POOL_LIST}</div>${CUT}${WD}</div>
    <ul class="pc">
     <li class="g"><b>장점</b><span>보편적으로 자율활동에 들어가는 활동의 비율이 커지면서 일반적이고 무난한 자율활동 느낌. 다양한 역량을 보여줄 수 있음.</span></li>
@@ -364,8 +380,8 @@ async function apiStatus(){
   const r = await fetch(`${SCRIPT_URL}?action=status&sid=${encodeURIComponent(S.sid)}&name=${encodeURIComponent(S.name)}`);
   return r.json();
 }
-async function apiPost(body){
-  const section = SEC().key;
+async function apiPost(body, secOverride){
+  const section = secOverride || SEC().key;
   if (DEMO) {
     await new Promise(r=>setTimeout(r,200));
     const db=demoStore(); db[S.sid]=db[S.sid]||{}; const sec=db[S.sid][section]=db[S.sid][section]||{files:{}};
@@ -401,10 +417,20 @@ function viewLogin(){
       if(!res.ok) throw new Error(res.error);
       S.status=res.sections||{};
       try{ localStorage.setItem('cc_me',JSON.stringify({sid,name:nm})); }catch(e){}
-      viewHome();
+      viewIntro();
     }catch(e){ $('#err').textContent = e.message || '서버에 연결하지 못했습니다. 잠시 후 다시 시도하세요.'; $('#go').disabled=false; }
   };
   $('#go').onclick=go; $('#nm').onkeydown=e=>{ if(e.key==='Enter') go(); };
+}
+
+function viewIntro(){
+  $('#who').textContent=`${S.sid} ${S.name}`;
+  render(`<div class="card intro">
+    <div class="big">2학년 창체활동 기록은 <em>매우 중요합니다.</em></div>
+    <div class="mid">시험 끝났다고 노는 시간만큼 세특의 퀄리티는 떨어집니다.<br>그동안 진행한 활동들을 정리해보세요.<br>진행한 활동이 없다면 지금이라도 <b>‘주제 선정’</b>부터 차근차근 시작해보세요!</div>
+    <div class="foot">*지금부터 안내하는 활동 외에 추가로 했다거나 따로 한 활동의 결과물이 있다면 다음 페이지의 안내에 따라 따로 업로드 하세요.*</div>
+    <button class="btn" id="go">확인했어요, 시작하기</button></div>`);
+  $('#go').onclick=viewHome;
 }
 
 function viewHome(){
@@ -428,7 +454,7 @@ function viewGuide(){
   render(`<div class="card">
     <div class="row" style="margin-top:0"><span><span class="pager">${esc(SEC().key)} 안내 ${S.gi+1} / ${G.length}</span><span class="dots">${G.map((_,i)=>`<i class="${i===S.gi?'on':''}"></i>`).join('')}</span></span>
       ${st.updated?'<button class="btn ghost small" id="skip">안내 건너뛰기</button>':''}</div>
-    <h2 style="margin-top:8px">${g.h}</h2>${g.s?`<h3>${g.s}</h3>`:''}
+    <h2 style="margin-top:8px">${g.h}</h2>${g.s?`<h3>${g.s}${g.reco?'<span class="reco">★ 강력추천</span>':''}</h3>`:''}
     ${g.body}
     <div class="row"><button class="btn ghost" id="pv">${S.gi===0?'처음 화면':'이전'}</button>
       <button class="btn" id="nx">${last?'방법 고르러 가기':'다음'}</button></div></div>`);
@@ -445,15 +471,18 @@ function viewMethod(){
     <div class="tiles" style="margin-top:12px">
       ${Object.entries(M).map(([k,m])=>{ const why=m.blocked?m.blocked():'';
         return `<button class="tile ${S.method===k?'sel':''} ${why?'off':''}" data-m="${k}" ${why?'disabled':''}>
-        <span class="t">${esc(m.label)}</span>${prev===k?'<span class="badge b-ok">지난번 선택</span>':''}${why?'<span class="badge b-gray">선택 불가</span>':''}
+        <span class="t">${esc(m.label)}</span>${m.reco?'<span class="reco">★ 강력추천</span>':''}${prev===k?'<span class="badge b-ok">지난번 선택</span>':''}${why?'<span class="badge b-gray">선택 불가</span>':''}
         <div class="muted">${esc(why||m.line)}</div></button>`; }).join('')}
     </div>
+    <div class="tiles" style="margin-top:18px"><button class="tile extra" id="extra"><span class="t">📎 추가 결과물 업로드</span><span class="badge b-gray">선택</span>
+        <div class="muted">제시된 양식 외에 따로 추가로 한 활동 결과물이 있다면 모두 업로드하세요.</div></button></div>
     <div class="row"><button class="btn ghost" id="pv">안내 다시 보기</button><button class="btn" id="nx" ${S.method?'':'disabled'}>다음</button></div></div>`);
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{
     if(S.method!==b.dataset.m){ S.method=b.dataset.m; restorePrev(); }
     viewMethod();
   });
   $('#pv').onclick=()=>{ S.gi=SEC().guide().length-1; viewGuide(); };
+  $('#extra').onclick=()=>viewExtra(viewMethod);
   $('#nx').onclick=()=>{ MT().pick ? viewPick() : viewUpload(); };
 }
 
@@ -477,9 +506,9 @@ function viewPick(){
   const rule = m.max ? `${m.min}~${m.max}개를 고르세요.` : `하나 이상 고르세요. (여러 개 선택 가능)`;
   render(`<div class="card"><span class="pager">${esc(m.title)}</span>
     <h2 style="margin-top:10px">${esc(m.pickTitle)}</h2><p class="muted">${rule}</p>
-    ${m.pick.map(id=>{const it=IT(id); const on=S.picks.includes(id);
-      return `<label class="check ${on?'sel':''}"><input type="checkbox" data-id="${id}" ${on?'checked':''}>
-        <div><b>${esc(it.label.replace(/^탐구동기-/,''))}</b>${it.sub?`<div class="muted">${esc(it.sub)}</div>`:''}</div></label>`;}).join('')}
+    ${m.pick.map(id=>{const it=IT(id); const on=S.picks.includes(id); const hot=it.hot&&m.reco;
+      return `<label class="check ${on?'sel':''} ${hot?'hot':''}"><input type="checkbox" data-id="${id}" ${on?'checked':''}>
+        <div><b>${esc(it.label.replace(/^탐구동기-/,''))}</b>${hot?'<span class="kang">강추</span>':''}${it.sub?`<div class="muted">${esc(it.sub)}</div>`:''}</div></label>`;}).join('')}
     ${fixedHtml}
     <div class="err" id="err"></div>
     <div class="row"><button class="btn ghost" id="pv">이전</button><button class="btn" id="nx">자료 올리러 가기</button></div></div>`);
@@ -535,6 +564,8 @@ function viewUpload(){
     <p class="muted">한글(hwp, hwpx) 또는 워드(doc, docx) 파일만 올릴 수 있습니다. 한 항목에 여러 파일을 함께 올릴 수 있습니다. (파일당 ${MAX_MB}MB 이하)</p>
     ${ssBanner}${opts}</div>
     ${ids.map(itemCard).join('')}
+    ${SEC().direct?`<div class="tiles" style="margin-bottom:16px"><button class="tile extra" id="extra"><span class="t">📎 추가 결과물 업로드</span><span class="badge b-gray">선택</span>
+        <div class="muted">제시된 양식 외에 따로 추가로 한 활동 결과물이 있다면 모두 업로드하세요.</div></button></div>`:''}
     <div class="card"><div class="err" id="err"></div>
       <div id="prog" class="hidden"><div class="muted" id="progText"></div><div class="progress"><div id="bar"></div></div></div>
       <div class="row"><button class="btn ghost" id="pv">이전</button><button class="btn" id="sub">제출하기</button></div></div>`);
@@ -556,6 +587,56 @@ function viewUpload(){
   });
   $('#pv').onclick=()=>{ if(SEC().direct) viewHome(); else if(m.pick) viewPick(); else viewMethod(); };
   $('#sub').onclick=submit;
+  const ex=$('#extra'); if(ex) ex.onclick=()=>viewExtra(viewUpload);
+}
+
+/* ---------- 추가 결과물 (영역별 별도 보관, 올릴 때마다 추가) ---------- */
+const EXTRA_LABEL='추가 결과물';
+const extraKey = () => SEC().key+' 추가자료';
+function viewExtra(back){
+  const prev=((S.status[extraKey()]||{}).files||{})[EXTRA_LABEL]||[];
+  let pick=[];
+  render(`<div class="card"><span class="pager">${esc(SEC().key)}</span>
+    <h2 style="margin-top:10px">📎 추가 결과물 업로드</h2>
+    <p>제시된 양식 외에 따로 추가로 한 활동 결과물이 있다면 모두 업로드하세요.</p>
+    <p class="muted">한글(hwp, hwpx) 또는 워드(doc, docx) 파일만 올릴 수 있습니다. 여러 파일을 한꺼번에 골라도 됩니다. (파일당 ${MAX_MB}MB 이하)<br>
+    올릴 때마다 기존 파일에 <b>추가</b>됩니다. 잘못 올린 파일은 담임 선생님께 말씀하세요.</p>
+    ${prev.length?`<div class="prev">✔ 지금까지 올린 추가 결과물: ${prev.map(esc).join(', ')}</div>`:''}
+    <input type="file" multiple accept=".hwp,.hwpx,.doc,.docx" id="xf" style="margin-top:10px">
+    <div class="newfiles" id="xn"></div>
+    <div class="err" id="err"></div>
+    <div id="prog" class="hidden"><div class="muted" id="progText"></div><div class="progress"><div id="bar"></div></div></div>
+    <div class="row"><button class="btn ghost" id="pv">이전</button><button class="btn" id="up">업로드하기</button></div></div>`);
+  $('#xf').onchange=()=>{ const ok=[], bad=[];
+    [...$('#xf').files].forEach(f=>{ const ext=f.name.split('.').pop().toLowerCase();
+      if(!OK_EXT.includes(ext)) bad.push(`${f.name} (한글/워드 파일이 아님)`);
+      else if(f.size>MAX_MB*1024*1024) bad.push(`${f.name} (${MAX_MB}MB 초과)`); else ok.push(f); });
+    pick=ok;
+    $('#xn').innerHTML=(ok.length?'올릴 파일: '+ok.map(f=>esc(f.name)).join(', '):'')+(bad.length?`<div style="color:var(--bad)">올릴 수 없는 파일: ${bad.map(esc).join(', ')}</div>`:''); };
+  $('#pv').onclick=back;
+  $('#up').onclick=async()=>{
+    if(!pick.length){ $('#err').textContent='올릴 파일을 먼저 골라 주세요.'; return; }
+    $('#up').disabled=true; $('#pv').disabled=true; $('#err').textContent=''; $('#prog').classList.remove('hidden');
+    try{
+      for(let k=0;k<pick.length;k++){
+        $('#progText').textContent=`파일 올리는 중 (${k+1}/${pick.length}): ${pick[k].name}`;
+        const r=await apiPost({action:'upload', itemOrder:1, itemLabel:EXTRA_LABEL, replace:false, fileName:pick[k].name, mimeType:pick[k].type, data:await toB64(pick[k])}, extraKey());
+        if(!r.ok) throw new Error(r.error||'업로드 실패');
+        $('#bar').style.width=((k+1)/(pick.length+1)*100)+'%';
+      }
+      const r=await apiPost({action:'finalize', method:'extra', methodLabel:'추가 결과물', followup:false, items:[{id:'extra', label:EXTRA_LABEL, order:1, note:''}]}, extraKey());
+      if(!r.ok) throw new Error(r.error||'저장 실패');
+      const st=await apiStatus(); if(st.ok) S.status=st.sections||{};
+      const all=((S.status[extraKey()]||{}).files||{})[EXTRA_LABEL]||[];
+      render(`<div class="card"><h2>추가 결과물 업로드가 완료되었습니다 ✔</h2>
+        <p>지금까지 올린 ${esc(SEC().key)} 추가 결과물: ${all.map(esc).join(', ')}</p>
+        <div class="row"><button class="btn ghost" id="more">파일 더 올리기</button><button class="btn" id="bk">돌아가기</button></div></div>`);
+      $('#more').onclick=()=>viewExtra(back); $('#bk').onclick=back;
+    }catch(e){
+      $('#err').textContent='업로드 중 문제가 생겼습니다: '+(e.message||e)+' — 다시 시도해 주세요.';
+      $('#up').disabled=false; $('#pv').disabled=false;
+    }
+  };
 }
 
 async function submit(){
@@ -607,6 +688,7 @@ function viewDone(){
   $('#home').onclick=viewHome;
 }
 
+$('#title').onclick=()=>{ if(S.sid) viewHome(); else viewLogin(); };
 viewLogin();
 </script>
 </body>
